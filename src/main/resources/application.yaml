@@ -1,0 +1,4 @@
+spring:
+    data:
+        mongodb:
+            host: mongo # alias mapped on docker composee file

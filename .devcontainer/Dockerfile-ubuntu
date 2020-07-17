@@ -1,0 +1,79 @@
+FROM ubuntu:20.04
+
+# This Dockerfile adds a non-root user with sudo access. Use the "remoteUser"
+# property in devcontainer.json to use it. On Linux, the container user's GID/UIDs
+# will be updated to match your local UID/GID (when using the dockerFile property).
+# See https://aka.ms/vscode-remote/containers/non-root-user for details.
+ARG USERNAME=vscode
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
+
+#COPY maven-settings.xml /usr/share/maven/ref/
+
+ENV JAVA_VERSION=14.0.2-open
+ENV MAVEN_VERSION=3.6.3
+ENV NODE_VERSION=12.18.2
+
+# Configure apt
+ENV DEBIAN_FRONTEND=noninteractive
+RUN rm /bin/sh && ln -s /bin/bash /bin/sh
+RUN apt-get update \
+    && apt-get -y install --no-install-recommends apt-utils dialog 2>&1 \
+    #
+    # Create a non-root user to use if preferred - see https://aka.ms/vscode-remote/containers/non-root-user.
+    && groupadd --gid $USER_GID $USERNAME \
+    && useradd -s /bin/bash --uid $USER_UID --gid $USER_GID -m $USERNAME \
+    # [Optional] Add sudo support for the non-root user
+    && apt-get install -y sudo \
+    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME\
+    && chmod 0440 /etc/sudoers.d/$USERNAME \
+    #
+    # Verify git, needed tools installed
+    # && apt-get -y install git openssh-client less iproute2 procps curl lsb-release \
+    #
+    # Install Curl
+    && apt-get install -y curl \
+    #
+    # Install ZIP
+    && apt-get install -y zip \
+    #
+    # Install UNZIP
+    && apt-get install -y unzip \
+    #
+    # Clean up
+    && apt-get autoremove -y \
+    && apt-get clean -y \
+    && rm -rf /var/lib/apt/lists/*
+    #
+    #
+    # The next steps are to configure SDKMAN, allowing installation of multiple versiosns
+    # of JDK and Maven (if necessary) and NVM to the same with NodeJS.
+    #
+    # Change to specific user
+USER $USERNAME
+    #
+    # Install SDKMAN 
+RUN curl -s "https://get.sdkman.io" | bash \
+    #
+    # Init SDKMAN
+    && source "$HOME/.sdkman/bin/sdkman-init.sh" \
+    #
+    # Install JAVA
+    && sdk install java $JAVA_VERSION \
+    #
+    # Install MAVEN
+    && sdk install maven $MAVEN_VERSION \
+    #
+    # Install Node Version Manager
+    && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash \
+    #
+    # Reload .bash_rc
+    && source "$HOME/.nvm/nvm.sh" \
+    #
+    # Install Node
+    && nvm install $NODE_VERSION \
+    #
+    # Install Yarn
+    && npm install -g yarn
+    
+ENV DEBIAN_FRONTEND=dialog

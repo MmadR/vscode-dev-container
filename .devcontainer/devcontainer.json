@@ -1,0 +1,39 @@
+{
+	"name": "Java and Node - Monolith",
+	"dockerFile": "Dockerfile-ubuntu",
+
+	//To access servers
+	"forwardPorts": [3000, 8080],
+
+	// Set *default* container specific settings.json values on container create.
+	"settings": { 
+		"terminal.integrated.shell.linux": "/bin/bash",
+		"java.home": "${HOME}/.sdkman/candidates/java/current"
+	},
+	
+	// Add the IDs of extensions you want installed when the container is created.
+	"extensions": [
+		"vscjava.vscode-java-pack",
+		"pivotal.vscode-boot-dev-pack",
+		"dotjoshjohnson.xml",
+		"ms-azuretools.vscode-docker",
+		"davidanson.vscode-markdownlint",
+		"vscjava.vscode-maven",
+
+		"dbaeumer.vscode-eslint",
+		"hookyqr.beautify",
+		"mgmcdermott.vscode-language-babel",
+		"sonarsource.sonarlint-vscode",
+		"glen-84.sass-lint",
+		"esbenp.prettier-vscode"
+	],
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [],
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	// "postCreateCommand": "java -version",
+
+	// Comment out to run as root instead.
+	"remoteUser": "vscode"
+}
